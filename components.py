@@ -83,23 +83,36 @@ class Board:
             nc, nr = col + dc, row + dr
             if self.is_inbounds(nc, nr):
                 result.append((nc, nr))
-                
+
         return result
 
     def place_mines(self, safe_col: int, safe_row: int) -> None:
-        # TODO: Place mines randomly, guaranteeing the first click and its neighbors are safe. And Compute adjacency counts
-        # all_positions = [(c, r) for r in range(self.rows) for c in range(self.cols)]
-        # forbidden = {(safe_col, safe_row)} | set(self.neighbors(safe_col, safe_row))
-        # pool = [p for p in all_positions if p not in forbidden]
-        # random.shuffle(pool)
-        
+        all_positions = [(c, r) for r in range(self.rows) for c in range(self.cols)]
+        forbidden = {(safe_col, safe_row)} | set(self.neighbors(safe_col, safe_row))
+        pool = [p for p in all_positions if p not in forbidden]
+        # If pool too small (rare), fall back to allowing more positions except the safe cell itself
+        if len(pool) < self.num_mines:
+            pool = [p for p in all_positions if p != (safe_col, safe_row)]
+
+        random.shuffle(pool)
+        chosen = pool[: self.num_mines]
+        # place mines
+        for c, r in chosen:
+            self.cells[self.index(c, r)].state.is_mine = True
+
         # Compute adjacency counts
-        # for r in range(self.rows):
-        #     for c in range(self.cols):
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if self.cells[self.index(c, r)].state.is_mine:
+                    self.cells[self.index(c, r)].state.adjacent = -1
+                    continue
+                count = 0
+                for nc, nr in self.neighbors(c, r):
+                    if self.cells[self.index(nc, nr)].state.is_mine:
+                        count += 1
+                self.cells[self.index(c, r)].state.adjacent = count
 
-        # self._mines_placed = True
-
-        pass
+        self._mines_placed = True
 
     def reveal(self, col: int, row: int) -> None:
         # TODO: Reveal a cell; if zero-adjacent, iteratively flood to neighbors.
