@@ -115,15 +115,49 @@ class Board:
         self._mines_placed = True
 
     def reveal(self, col: int, row: int) -> None:
-        # TODO: Reveal a cell; if zero-adjacent, iteratively flood to neighbors.
-        # if not self.is_inbounds(col, row):
-        #     return
-        # if not self._mines_placed:
-        #     self.place_mines(col, row)
+        if not self.is_inbounds(col, row):
+            return
+        if self.game_over or self.win:
+            return
 
-        
-        # self._check_win()
-        pass
+        if not self._mines_placed:
+            self.place_mines(col, row)
+
+        cell = self.cells[self.index(col, row)]
+        # if already revealed or flagged, nothing to do
+        if cell.state.is_revealed or cell.state.is_flagged:
+            return
+
+        # stepping on a mine -> game over
+        if cell.state.is_mine:
+            cell.state.is_revealed = True
+            self.game_over = True
+            self._reveal_all_mines()
+            return
+
+        # iterative flood fill
+        stack = [(col, row)]
+        while stack:
+            c, r = stack.pop()
+            if not self.is_inbounds(c, r):
+                continue
+            cur = self.cells[self.index(c, r)]
+            if cur.state.is_revealed or cur.state.is_flagged:
+                continue
+            # reveal this cell
+            cur.state.is_revealed = True
+            # increment revealed count for non-mine only
+            if not cur.state.is_mine:
+                self.revealed_count += 1
+            # if zero adjacent, add neighbors to stack
+            if cur.state.adjacent == 0:
+                for nc, nr in self.neighbors(c, r):
+                    neighbor_cell = self.cells[self.index(nc, nr)]
+                    if not neighbor_cell.state.is_revealed and not neighbor_cell.state.is_flagged and not neighbor_cell.state.is_mine:
+                        stack.append((nc, nr))
+
+        # after revealing, check win
+        self._check_win()
 
     def toggle_flag(self, col: int, row: int) -> None:
         # TODO: Toggle a flag on a non-revealed cell.
