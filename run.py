@@ -237,7 +237,12 @@ class Game:
                 self.renderer.draw_cell(c, r, highlighted)
         self.renderer.draw_result_overlay(self._result_text(), self.score)  # 점수 표시
         pygame.display.flip()
-
+    def hint(self) -> None:
+        """힌트: 지뢰가 없는 임의의 셀 한 칸을 공개합니다."""
+        for cell in self.board.cells:
+            if not cell.state.is_mine and not cell.state.is_revealed:
+                self.board.reveal(cell.col, cell.row)
+                break
     def run_step(self) -> bool:
         """Process inputs, update time, draw, and tick the clock once."""
         for event in pygame.event.get():
@@ -246,6 +251,8 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     self.reset()
+                elif event.key == pygame.K_h:  # 힌트 키
+                    self.hint()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.input.handle_mouse(event.pos, event.button)
         if (self.board.game_over or self.board.win) and self.started and not self.end_ticks_ms:
