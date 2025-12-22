@@ -92,16 +92,27 @@ class Renderer:
         self.screen.blit(left_label, (10, 12))
         self.screen.blit(right_label, (config.width - right_label.get_width() - 10, 12))
 
-    def draw_result_overlay(self, text: str | None) -> None:
-        """Draw a semi-transparent overlay with centered result text, if any."""
+    def draw_result_overlay(self, text: str | None, score: int | None = None) -> None:
+        """Draw a semi-transparent overlay with centered result text and score, if any."""
         if not text:
             return
+
+    # 반투명 배경 생성
         overlay = pygame.Surface((config.width, config.height), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, config.result_overlay_alpha))
         self.screen.blit(overlay, (0, 0))
+
+    # 결과 텍스트 표시
         label = self.result_font.render(text, True, config.color_result)
-        rect = label.get_rect(center=(config.width // 2, config.height // 2))
+        rect = label.get_rect(center=(config.width // 2, config.height // 2 - 20))  # 텍스트 위치 조정
         self.screen.blit(label, rect)
+
+    # 점수 표시
+        if score is not None:
+            score_label = self.result_font.render(f"Score: {score}", True, config.color_result)
+            score_rect = score_label.get_rect(center=(config.width // 2, config.height // 2 + 40))  # 결과 텍스트 아래
+            self.screen.blit(score_label, score_rect)
+
 
 
 class InputController:
@@ -170,6 +181,10 @@ class Game:
         self.start_ticks_ms = 0
         self.end_ticks_ms = 0
 
+    # 게임 종료 시 점수를 저장하기 위한 속성
+        self.score = 0
+
+
     def reset(self):
         """Reset the game state and start a new board."""
         self.board = Board(config.cols, config.rows, config.num_mines)
@@ -206,6 +221,13 @@ class Game:
         if self.board.win:
             return "GAME CLEAR"
         return None
+    def calculate_score(self) -> int:
+        """플레이어의 점수를 계산합니다 (안전하게 연 셀 수 + 짧은 시간일수록 보너스)"""
+        safe_cells = self.board.revealed_count
+        elapsed_sec = self._elapsed_ms() // 1000 # 경과 시간(초)
+    # 점수 계산: 안전 셀 * 10 + 300초 기준 보너스
+        return safe_cells * 10 + max(0, 300 - elapsed_sec)  
+
 
     def draw(self):
         """Render one frame: header, grid, result overlay."""
@@ -220,7 +242,7 @@ class Game:
             for c in range(self.board.cols):
                 highlighted = (now <= self.highlight_until_ms) and ((c, r) in self.highlight_targets)
                 self.renderer.draw_cell(c, r, highlighted)
-        self.renderer.draw_result_overlay(self._result_text())
+        self.renderer.draw_result_overlay(self._result_text(), self.score)  # 점수 표시
         pygame.display.flip()
 
     def run_step(self) -> bool:
@@ -235,6 +257,9 @@ class Game:
                 self.input.handle_mouse(event.pos, event.button)
         if (self.board.game_over or self.board.win) and self.started and not self.end_ticks_ms:
             self.end_ticks_ms = pygame.time.get_ticks()
+            # 게임 종료 시 점수 계산 (한 번만 수행)
+            if not self.score:
+                self.score = self.calculate_score()
         self.draw()
         self.clock.tick(config.fps)
         return True
