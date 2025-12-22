@@ -47,7 +47,14 @@ class Renderer:
             if cell.state.is_mine:
                 pygame.draw.circle(self.screen, config.color_cell_mine, rect.center, rect.width // 4)
             elif cell.state.adjacent > 0:
-                color = config.number_colors.get(cell.state.adjacent, config.color_text)
+                num = cell.state.adjacent
+                if num == 1:
+                    color = config.number_colors[1]
+                elif num == 2:
+                    color = config.number_colors[2]
+                else:
+                    color = config.number_colors[3]
+
                 label = self.font.render(str(cell.state.adjacent), True, color)
                 label_rect = label.get_rect(center=rect.center)
                 self.screen.blit(label, label_rect)
