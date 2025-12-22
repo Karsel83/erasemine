@@ -182,14 +182,10 @@ class Game:
 
     def _elapsed_ms(self) -> int:
         """Return elapsed time in milliseconds (stops when game ends)."""
-        """게임 종료 시 멈추는 밀리초 단위 경과 시간 반환"""
-        # 게임이 시작되지 않았으면 0 반환
         if not self.started:
             return 0
-        # 게임이 종료되면 타이머 정지
         if self.end_ticks_ms:
             return self.end_ticks_ms - self.start_ticks_ms
-        # 게임 중이면 실시간 경과 시간 반환
         return pygame.time.get_ticks() - self.start_ticks_ms
 
     def _format_time(self, ms: int) -> str:
