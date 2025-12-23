@@ -12,6 +12,7 @@ Pygame으로 구현한 지뢰찾기(Minesweeper) 게임입니다.
 ## Controls
 - 좌클릭: 칸 열기
 - 우클릭: 깃발 표시
+
 - R 키: 게임 재시작
 - 1 / 2 / 3 키: 난이도 변경
 - Hint 버튼: 힌트 사용
@@ -22,4 +23,4 @@ pip install pygame
 python run.py
 
 ## Screenshot
-<img width="554" height="625" alt="image" src="https://github.com/user-attachments/assets/f6d41589-42d4-4012-a51e-72a14ecd12d5" />
+<img width="555" height="624" alt="11" src="https://github.com/user-attachments/assets/14e74dec-47e9-4320-a9f0-9c514815d379" />
