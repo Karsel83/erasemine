@@ -23,4 +23,6 @@ pip install pygame
 python run.py
 
 ## Screenshot
-<img width="555" height="624" alt="11" src="https://github.com/user-attachments/assets/14e74dec-47e9-4320-a9f0-9c514815d379" />
+
+![Gameplay Screenshot](https://github.com/user-attachments/assets/b4cc1942-e759-42d3-a907-c7aeeea236b0)
+
