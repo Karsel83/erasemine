@@ -18,7 +18,7 @@ Pygame으로 구현한 지뢰찾기(Minesweeper) 게임입니다.
 - Hint 버튼: 힌트 사용
 
 ## How to Run
-```bash
+bash
 pip install pygame
 python run.py
 
