@@ -20,3 +20,6 @@ Pygame으로 구현한 지뢰찾기(Minesweeper) 게임입니다.
 ```bash
 pip install pygame
 python run.py
+
+## Screenshot
+<img width="554" height="625" alt="image" src="https://github.com/user-attachments/assets/f6d41589-42d4-4012-a51e-72a14ecd12d5" />
