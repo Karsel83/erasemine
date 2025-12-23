@@ -87,9 +87,12 @@ class Renderer:
         )
         left_text = f"Mines: {remaining_mines}"
         right_text = f"Time: {time_text}"
+        hint_text = f"Hint: {hints}"
         left_label = self.header_font.render(left_text, True, config.color_header_text)
         right_label = self.header_font.render(right_text, True, config.color_header_text)
+        hint_label = self.header_font.render(hint_text, True, config.color_header_text)
         self.screen.blit(left_label, (10, 12))
+        self.screen.blit(hint_label, (130, 12))
         self.screen.blit(right_label, (config.width - right_label.get_width() - 10, 12))
 
     def draw_result_overlay(self, text: str | None, score: int | None = None) -> None:
@@ -205,6 +208,8 @@ class Game:
         self.started = False
         self.start_ticks_ms = 0
         self.end_ticks_ms = 0
+        self.score = 0
+        self.remaining_hints = self.max_hints
 
     def _elapsed_ms(self) -> int:
         """Return elapsed time in milliseconds (stops when game ends)."""
@@ -247,7 +252,7 @@ class Game:
         self.screen.fill(config.color_bg)
         remaining = max(0, config.num_mines - self.board.flagged_count())
         time_text = self._format_time(self._elapsed_ms())
-        self.renderer.draw_header(remaining, time_text)
+        self.renderer.draw_header(remaining, time_text,self.remaining_hints)
         now = pygame.time.get_ticks()
         for r in range(self.board.rows):
             for c in range(self.board.cols):
@@ -272,6 +277,12 @@ class Game:
                 elif event.key == pygame.K_h:  # 힌트 키
                     self.hint()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+
+            # 힌트 버튼 클릭 영역
+                if 120 <= x <= 260 and 8 <= y <= 40:
+                    self.hint()
+                    continue
                 self.input.handle_mouse(event.pos, event.button)
         if (self.board.game_over or self.board.win) and self.started and not self.end_ticks_ms:
             self.end_ticks_ms = pygame.time.get_ticks()
