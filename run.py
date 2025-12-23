@@ -167,22 +167,33 @@ class InputController:
 class Game:
     """Main application object orchestrating loop and high-level state."""
 
-    def __init__(self):
+    def __init__(self, difficulty: str = "medium"):  # 기본 난이도 medium
         pygame.init()
         pygame.display.set_caption(config.title)
         self.screen = pygame.display.set_mode(config.display_dimension)
         self.clock = pygame.time.Clock()
-        self.board = Board(config.cols, config.rows, config.num_mines)
+
+    # 난이도 설정 적용
+    # config.difficulty_levels에서 해당 난이도 가져오기, 없으면 medium 사용
+        level = config.difficulty_levels.get(difficulty, config.difficulty_levels["medium"])
+        self.board = Board(level["cols"], level["rows"], level["num_mines"])
+    
+    # 렌더러와 입력 컨트롤러 초기화
         self.renderer = Renderer(self.screen, self.board)
         self.input = InputController(self)
+    
+    # 하이라이트 표시용
         self.highlight_targets = set()
         self.highlight_until_ms = 0
+    
+    # 게임 상태 초기화
         self.started = False
         self.start_ticks_ms = 0
         self.end_ticks_ms = 0
-
-    # 게임 종료 시 점수를 저장하기 위한 속성
+    
+    # 게임 종료 시 점수 저장
         self.score = 0
+
 
 
     def reset(self):
@@ -274,7 +285,10 @@ class Game:
 
 def main() -> int:
     """Application entrypoint: run the main loop until quit."""
-    game = Game()
+    # 게임 난이도 설정: "easy", "medium", "hard"
+    game = Game(difficulty="hard")  # 쉬움
+    # game = Game(difficulty="medium")  # 중간
+    # game = Game(difficulty="hard")  # 어려움
     running = True
     while running:
         running = game.run_step()
